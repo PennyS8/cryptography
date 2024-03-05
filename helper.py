@@ -1,114 +1,133 @@
-#!/usr/bin/env python
+import string
 
-def convert_to_char(num, a):
+def modular_inverse(n, m):
     """
-    Convert a number to a character in the English alphabet based on the specified mode.
-
-    Args:
-        num (int): The number to be converted.
-        a (int): The mode.
-                If 0: a/A maps to 0, and z/Z maps to 25
-                if 1: a/A maps to 1, and z/Z maps to 0
-
-    Returns:
-        str: The corresponding character.
+    Calculate the modular multiplicative inverse of n modulo m.
     """
+    for i in range(m):
+        if (n*i) % m == 1:
+            return i
+    raise ValueError("Modular inverse does not exist.")
+
+def num_list_to_string(number_list, mode):
     # Validate input
-    if not a == 0 or not a == 1:
-        raise ValueError('Invalid "a" in helper.py: convert_to_char(), a must be 0 or 1.')
-    if num < 0:
-        raise ValueError('Invalid "num" in helper.py: convert_to_char(), num must be >= 0.')
+    if not mode == 0 and not mode == 1:
+        raise ValueError('Invalid mode. Mode must be 0 or 1.')
 
-    # Define alphabet mappings
-    a_is_zero_alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    a_is_one_alph = 'ZABCDEFGHIJKLMNOPQRSTUVWXY'
+    string = ''
+    for num in number_list:
+        ascii = num + 96 + mode
+        if ascii == 96:
+            ascii += 26
+        string += chr(ascii)
+    
+    return string
 
-    # Return corresponding character based on mode
-    if a == 1:
-        return a_is_one_alph[num]
-    else:
-        return a_is_zero_alph[num]
-        
-def decrypt_with_shifts(shifts):
-    """
-    Decrypt the text using a given set of shift values and print the result.
+def string_to_num_list(string, mode):
+    if not mode == 0 and not mode == 1:
+        raise ValueError('Invalid mode. Mode must be 0 or 1.')
 
-    Args:
-        shifts (list): A list of lists containing guesses for the Caesar cipher shifts.
+    number_list = []
+    for char in string:
+        letter = char.lower()
+        number_list.append((ord(letter) - 96 - mode) % 26)
+    
+    return number_list
 
-    Returns:
-        None
-    """
-    for sequence in shifts:
-        for index, shift in enumerate(sequence):
-            sequence[index] = calculate_shift('e', shift)
+def clean_text(text):
+    cleaned_text = ''
+    punctuation_list = []
 
-    num_sequences = len(shifts)
-    positions = [0] * num_sequences  
+    for char in text:
+        if char.isalpha():
+            cleaned_text += char
+            punctuation_list.append(None)
+        elif char in string.punctuation:
+            punctuation_list.append(char)
 
-    loop = True
+    return cleaned_text, punctuation_list
 
-    while loop:
-        for i in range(num_sequences):
-            print(convert_to_char(shifts[i][positions[i]], 0), end="")
-        print()
-        for i in range(num_sequences):
-            print(convert_to_char(shifts[i][positions[i]], 1), end="")
-        print()
+def print_plaintext(text, punctuation_list):
+    modified_text = ''
 
-        # Check if all positions have been iterated through
-        if all(positions[i] >= len(shifts[i]) - 1 for i in range(num_sequences)):
-            loop = False
+    for i, char in enumerate(text):
+        if not punctuation_list[i] == None:
+            modified_text += punctuation_list[i]
         else:
-            # Increment the current position or reset if at the end
-            for i in range(num_sequences):
-                if positions[i] < len(shifts[i]) - 1:
-                    positions[i] += 1
-                    break
-                else:
-                    positions[i] = 0
+            modified_text += char
 
-def calculate_shift(char_a, char_b):
-    """
-    Calculate the shift between two characters in the English alphabet.
+    plaintext = modified_text.lower()
+    print(plaintext)
 
-    Args:
-        char_a (str): The first character.
-        char_b (str): The second character.
+def print_monographs(ciphertext):
+    # Count occurrences of each letter in the plaintext
+    plaintext_counts = {chr(letter): 0 for letter in range(ord('A'), ord('Z') + 1)}
+    for char in ciphertext:
+        if char.isalpha():
+            plaintext_counts[char] += 1
 
-    Returns:
-        int: The shift value.
-    """
-    return (convert_to_index(char_b, 1) - convert_to_index(char_a, 1)) % 26
+    # Sort plaintext counts by frequency
+    sorted_counts = sorted(plaintext_counts.items(), key=lambda x: x[1], reverse=True)
 
-def convert_to_index(character, mode):
-    """
-    Convert a character to a number representing its position in the English alphabet.
+    # Print occurrences of each letter in the specified order
+    print("\nOccurrences of each letter in the plaintext:")
+    count = 0
+    for letter, freq in sorted_counts:
+        if len(str(freq)) == 1:  # Check if the frequency is a single digit
+            freq = f" {freq}"  # Add a leading space before the frequency
+        print(f"{letter}: {freq}", end="  ")
+        count += 1
+        if count % 5 == 0:  # Start a new line after every 5th frequency
+            print()
 
-    Args:
-        character (str): The character to be converted.
-        mode (int): The mode. If 0, assumes 'a' is 1, if 1, assumes 'a' is 0.
+def print_digraphs(ciphertext):
+    # Calculate the digraphs in the ciphertext
+    digraphs = {}
+    for i in range(len(ciphertext) - 1):
+        digraph = ciphertext[i:i+2]
+        if digraph.isalpha():
+            if digraph in digraphs:
+                digraphs[digraph] += 1
+            else:
+                digraphs[digraph] = 1
 
-    Returns:
-        int: The corresponding number.
-        
-    Raises:
-        ValueError: If the mode is not 0 or 1.
-    """
-    character = character.lower()
-    if mode == 0:
-        if character == 'a':
-            return 1
-        return ord(character) - 96
-    elif mode == 1:
-        if character == 'z':
-            return 1
-        return ord(character) - 96
-    else:
-        raise ValueError("Invalid mode. Mode must be 0 or 1.")
+    # Filter out digraphs with only one occurrence
+    filtered_digraphs = {digraph: freq for digraph, freq in digraphs.items() if freq > 1}
 
-if __name__ == '__main__':
-    # Example usage
-    shifts = [['x'], ['b'], ['b'], ['b'], ['b'], ['b'], ['b']]  # Guesses for the Caesar cipher key
-    print("Decryption with guessed key:")
-    decrypt_with_shifts(shifts)
+    # Sort digraphs by frequency
+    sorted_digraphs = sorted(filtered_digraphs.items(), key=lambda x: x[1], reverse=True)
+
+    # Print occurrences of each digraph in the ciphertext
+    print("\nOccurrences of each digraph in the ciphertext :")
+    count = 0
+    for digraph, freq in sorted_digraphs:
+        print(f"{digraph}: {freq}", end="  ")
+        count += 1
+        if count % 5 == 0:  # Start a new line after every 5th digraph
+            print()
+
+def print_trigraphs(ciphertext):
+    # Calculate the trigraphs in the ciphertext
+    trigraphs = {}
+    for i in range(len(ciphertext) - 2):
+        trigraph = ciphertext[i:i+3]
+        if trigraph.isalpha():
+            if trigraph in trigraphs:
+                trigraphs[trigraph] += 1
+            else:
+                trigraphs[trigraph] = 1
+
+    # Filter out trigraphs with only one occurrence
+    filtered_trigraphs = {trigraph: freq for trigraph, freq in trigraphs.items() if freq > 1}
+
+    # Sort trigraphs by frequency
+    sorted_trigraphs = sorted(filtered_trigraphs.items(), key=lambda x: x[1], reverse=True)
+
+    # Print occurrences of each trigraph in the ciphertext
+    print("\nOccurrences of each trigraph in the ciphertext:")
+    count = 0
+    for trigraph, freq in sorted_trigraphs:
+        print(f"{trigraph}: {freq}", end="  ")
+        count += 1
+        if count % 5 == 0:  # Start a new line after every 5th trigraph
+            print()
