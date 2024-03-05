@@ -20,7 +20,7 @@ def num_list_to_string(number_list, mode):
         if ascii == 96:
             ascii += 26
         string += chr(ascii)
-    
+
     return string
 
 def string_to_num_list(string, mode):
@@ -36,25 +36,32 @@ def string_to_num_list(string, mode):
 
 def clean_text(text):
     cleaned_text = ''
-    punctuation_list = []
-
+    # Store punctuation and list all indexes of each mark in the text
+    punct_index_map = {}
+    punct_index_tracker = 0
     for char in text:
         if char.isalpha():
             cleaned_text += char
-            punctuation_list.append(None)
         elif char in string.punctuation:
-            punctuation_list.append(char)
+            if char not in punct_index_map.keys():
+                punct_index_map[char] = [punct_index_tracker]
+            else:
+                punct_index_map[char].append(punct_index_tracker)
+        else: # Spaces or other non-valid symbols
+            continue
 
-    return cleaned_text, punctuation_list
+        punct_index_tracker += 1
 
-def print_plaintext(text, punctuation_list):
-    modified_text = ''
+    return cleaned_text, punct_index_map
 
-    for i, char in enumerate(text):
-        if not punctuation_list[i] == None:
-            modified_text += punctuation_list[i]
-        else:
-            modified_text += char
+def print_plaintext(text, punct_index_map):
+    modified_text = text
+
+    # Insert preserved punctuation
+    for char in punct_index_map:
+        for i in range(len(char)):
+            # insert the punctuation into the text
+            modified_text[:i] + char + modified_text[i:]
 
     plaintext = modified_text.lower()
     print(plaintext)

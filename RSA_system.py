@@ -107,9 +107,6 @@ def calculate_IC(ciphertext):
 
     return IC
 
-def estimate_keyword_length(n, IC):
-    return math.ceil((0.027*n) / ((IC * (n-1)) - (0.038*n) + 0.065))
-
 def main(ciphertext):
 
     print(f'Input Ciphertext:\n\t{ciphertext}')

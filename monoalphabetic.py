@@ -43,7 +43,7 @@ def solve_monoalphabetic(ciphertext):
 
         try:
             # Calculate the affine key (a, b)
-            a, b = solve_affine(mappings)
+            a, b = solve_affine(mappings) # NOTE: this solved for the decryption key NOT the encryption key
         except ValueError:
             print('\nError: The selected mappings result in a non-invertible base for the affine cipher calculation.')
             print('Try different mappings.')
