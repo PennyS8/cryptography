@@ -1,5 +1,5 @@
 import unittest
-import helper
+from cipherCalcs import helper as helper
 
 class TestCleanText(unittest.TestCase):
     def test_basic_string():

@@ -83,27 +83,26 @@ def friedman_test(IC):
     K = (0.065-0.038) / (0.038-IC)
 
     if abs(K - 0.065) >= abs(K - 0.038):
-        rtn = 'mono'
-    else:
         rtn = 'poly'
+    else:
+        rtn = 'mono'
 
     return rtn, K
 
 def calculate_IC(ciphertext):
-    total_characters = len(ciphertext)
+    n = len(ciphertext)
     frequency = {}
     IC_sum = 0 # index of coincidence
-    
+
     # Count the occurrences of each letter
     for char in ciphertext:
-        if char.isalpha():
-            frequency[char] = frequency.get(char, 0) + 1
+        frequency[char] = frequency.get(char, 0) + 1
 
     # Calculate the Index of Coincidence
     for count in frequency.values():
-        IC_sum += count * (count - 1)
+        IC_sum += count * (count-1)
 
-    IC = IC_sum / (total_characters * (total_characters - 1))
+    IC = IC_sum / (n * (n-1))
 
     return IC
 
@@ -111,7 +110,7 @@ def main(ciphertext):
 
     print(f'Input Ciphertext:\n\t{ciphertext}')
     
-    clean_text = helper.clean_text(ciphertext)
+    clean_text = helper.clean_text(ciphertext)[0]
     n = len(clean_text)
     IC = calculate_IC(clean_text)
     K = friedman_test(IC) # returns ((string) ['mono'/'poly'], (long) K)

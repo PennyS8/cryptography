@@ -1,5 +1,5 @@
-import RSA_system as rsa
-import helper
+import cipherCalcs.RSASystem as rsa
+import cipherCalcs.helper as helper
 import math
 
 # Defines the letter to number assignment starting with a = constant_mode
