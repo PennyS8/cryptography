@@ -65,7 +65,7 @@ def print_plaintext(text, punct_index_map):
 
     plaintext = modified_text.lower()
     print(plaintext)
-
+'''
 def print_monographs(ciphertext):
     # Count occurrences of each letter in the plaintext
     plaintext_counts = {chr(letter): 0 for letter in range(ord('A'), ord('Z') + 1)}
@@ -112,12 +112,13 @@ def print_digraphs(ciphertext):
         count += 1
         if count % 5 == 0:  # Start a new line after every 5th digraph
             print()
-
-def print_trigraphs(ciphertext):
+'''
+def print_frequency_graph_n(ciphertext, n):
+    n = int(n)
     # Calculate the trigraphs in the ciphertext
     trigraphs = {}
-    for i in range(len(ciphertext) - 2):
-        trigraph = ciphertext[i:i+3]
+    for i in range(len(ciphertext) - (n-1)):
+        trigraph = ciphertext[i:i+n]
         if trigraph.isalpha():
             if trigraph in trigraphs:
                 trigraphs[trigraph] += 1
